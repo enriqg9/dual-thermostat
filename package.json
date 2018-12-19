@@ -1,0 +1,26 @@
+{
+  "name": "dual-thermostat",
+  "version": "0.0.1",
+  "description": "A Dual Thermostat Lovelace Card",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack --hide-modules --mode=development",
+    "watch": "webpack --hide-modules --watch --mode=development",
+    "build": "webpack --hide-modules --mode=production"
+  },
+  "keywords": [],
+  "author": "enriqg9",
+  "license": "MIT",
+  "devDependencies": {
+    "raw-loader": "^1.0.0",
+    "webpack": "^4.27.1",
+    "webpack-build-notifier": "^0.1.30",
+    "webpack-cli": "^3.1.2"
+  },
+  "dependencies": {
+    "@polymer/lit-element": "^0.6.5",
+    "jquery": "^3.3.1",
+    "lit-html": "^0.14.0",
+    "round-slider": "^1.3.2"
+  }
+}
