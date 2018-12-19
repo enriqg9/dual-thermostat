@@ -29,9 +29,9 @@ Heat and Cool entities are updated depending on the active thermostat mode. The 
 ```yaml
 cards:
   - type: custom:dual-thermostat
-  name: Downstairs
-  entities:
-    cool: climate.downstairs_cool
-    heat: climate.downstairs_heat
-  fan_control: true
+    name: Downstairs
+    entities:
+      cool: climate.downstairs_cool
+      heat: climate.downstairs_heat
+    fan_control: true
 ```
