@@ -61,7 +61,6 @@ class DualThermostatCard extends LitElement {
     this.heat_entity = null;
     this.stateObj = null;
     this.name = null;
-    this.temperature = null;
     this.mode = null;
   }
 
@@ -162,9 +161,9 @@ class DualThermostatCard extends LitElement {
             selected="${this.stateObj.attributes.fan_list.indexOf(this.stateObj.attributes.fan_mode)}"
           >
             ${(this.stateObj.attributes.fan_list || []).map((fanMode) => {
-              return html`<paper-item mode="${fanMode}">${fanMode}</paper-item>`;
-            }
-          )}
+        return html`<paper-item mode="${fanMode}">${fanMode}</paper-item>`;
+      }
+    )}
           </paper-listbox>
         </paper-dropdown-menu>
       </div>
@@ -278,7 +277,7 @@ class DualThermostatCard extends LitElement {
   renderStyle() {
     return html`
       <style>
-        ${roundSliderCSS},
+        ${roundSliderCSS}
         .rs-readonly {
           top: auto;
           z-index: auto;

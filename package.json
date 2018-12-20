@@ -2,13 +2,17 @@
   "name": "dual-thermostat",
   "version": "0.0.1",
   "description": "A Dual Thermostat Lovelace Card",
-  "main": "index.js",
+  "main": "src/js/app.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/enriqg9/dual-thermostat.git"
+  },
   "scripts": {
     "dev": "webpack --hide-modules --mode=development",
     "watch": "webpack --hide-modules --watch --mode=development",
     "build": "webpack --hide-modules --mode=production"
   },
-  "keywords": [],
+  "keywords": ["Home Assistant", "Lovelace", "Thermostat", "Card"],
   "author": "enriqg9",
   "license": "MIT",
   "devDependencies": {
