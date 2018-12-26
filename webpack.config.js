@@ -3,7 +3,7 @@ const path = require('path');
 const WebpackBuildNotifierPlugin = require('webpack-build-notifier');
 
 module.exports = {
-  entry: './src/js/app.js',
+  entry: './src/app.js',
 
   output: {
     path: path.resolve(__dirname, 'dual-thermostat'),
@@ -16,6 +16,14 @@ module.exports = {
       {
         test: /\.css$/,
         loader: ['raw-loader']
+      },
+      {
+        test: /\.js$/,
+        loader: 'babel-loader',
+        exclude: /node_modules/,
+        options: {
+          cacheDirectory: true
+        }
       }
     ]
   },

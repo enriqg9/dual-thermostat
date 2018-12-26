@@ -13,7 +13,7 @@ Heat and Cool entities are updated depending on the active thermostat mode. The 
     ```
     resources:
       - url: /local/dual-thermostat/dual-thermostat.js?v=1
-        type: module
+        type: js
     ```
 
 ## Available configuration options:
