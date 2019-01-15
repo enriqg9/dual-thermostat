@@ -49,6 +49,8 @@ class DualThermostatCard extends LitElement {
       },
       mode: String,
       name: String,
+      min_slider: Number,
+      max_slider: Number
     }
   }
 
@@ -62,6 +64,8 @@ class DualThermostatCard extends LitElement {
     this.stateObj = null;
     this.name = null;
     this.mode = null;
+    this.min_slider = null;
+    this.max_slider = null
   }
 
   set hass(hass) {
@@ -81,7 +85,14 @@ class DualThermostatCard extends LitElement {
         ];
 
       this.name = this._config.name || this.stateObj.attributes.friendly_name;
-
+      if (this._config.min_slider && this._config.max_slider) {
+        this.min_slider = this._config.min_slider;
+        this.max_slider = this._config.max_slider;
+      }
+      else {
+        this.min_slider = this.stateObj.attributes.min_temp;
+        this.max_slider = this.stateObj.attributes.max_temp;        
+      }
       this.mode = modeIcons[this.stateObj.attributes.operation_mode || ""]
         ? this.stateObj.attributes.operation_mode
         : "unknown-mode";
@@ -198,8 +209,8 @@ class DualThermostatCard extends LitElement {
     jQuery("#thermostat", this.shadowRoot).roundSlider({
       ...thermostatConfig,
       radius: this.clientWidth / 3,
-      min: this.stateObj.attributes.min_temp,
-      max: this.stateObj.attributes.max_temp,
+      min: this.min_slider,
+      max: this.max_slider,
       sliderType: this.mode === "auto" ? "range" : "min-range",
       change: (event) => this.setTemperature(event),
       drag: (event) => this.dragEvent(event),
