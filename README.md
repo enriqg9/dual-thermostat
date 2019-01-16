@@ -23,6 +23,8 @@ Heat and Cool entities are updated depending on the active thermostat mode. The 
 	* `heat`: The thermostat heating entity id **required**
 * `name` *string*: Override the card name. (Default: Uses the friendly_name attribute of the first climate entity provided)
 * `fan_control` *bool*: Show the fan control dropdown (Default: false)
+* `min_slider` *integer*: Sets the minimum for the temperature slider(Default: If present, the number provided by the 'min_temp' attribute of the thermostat. Otherwise, this is 0*F)
+* `max_slider` *integer*: Sets the maximum for the temperature slider(Default: If present, the number provided by the 'max_temp' attribute of the thermostat. Otherwise, this is 100*F)
 
 ## Example usage:
 
@@ -34,4 +36,6 @@ cards:
       cool: climate.downstairs_cool
       heat: climate.downstairs_heat
     fan_control: true
+    min_slider: 60
+    max_slider: 80
 ```
