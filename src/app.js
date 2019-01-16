@@ -85,14 +85,8 @@ class DualThermostatCard extends LitElement {
         ];
 
       this.name = this._config.name || this.stateObj.attributes.friendly_name;
-      if (this._config.min_slider && this._config.max_slider) {
-        this.min_slider = this._config.min_slider;
-        this.max_slider = this._config.max_slider;
-      }
-      else {
-        this.min_slider = this.stateObj.attributes.min_temp;
-        this.max_slider = this.stateObj.attributes.max_temp;        
-      }
+      this.min_slider = this._config.min_slider || this.stateObj.attributes.min_temp;
+      this.max_slider = this._config.max_slider || this.stateObj.attributes.max_temp;
       this.mode = modeIcons[this.stateObj.attributes.operation_mode || ""]
         ? this.stateObj.attributes.operation_mode
         : "unknown-mode";
