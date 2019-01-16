@@ -1,8 +1,8 @@
 # Lovelace Dual Thermostat Card
 
-A custom Lovelace card based on the native thermostat card that allows to control dual thermostats that create separate Heat and Cool entities. 
+A custom Lovelace card based on the native thermostat card that allows to control dual thermostats that create separate Heat and Cool entities.
 
-Heat and Cool entities are updated depending on the active thermostat mode. The low point on the Auto mode controls the heat entity and the high point controls the cool entity allowing you to use a single card for both entities. 
+Heat and Cool entities are updated depending on the active thermostat mode. The low point on the Auto mode controls the heat entity and the high point controls the cool entity allowing you to use a single card for both entities.
 
 ![Example thermostat](https://github.com/enriqg9/dual-thermostat/raw/master/dual-thermostat.png)
 
@@ -23,8 +23,8 @@ Heat and Cool entities are updated depending on the active thermostat mode. The 
 	* `heat`: The thermostat heating entity id **required**
 * `name` *string*: Override the card name. (Default: Uses the friendly_name attribute of the first climate entity provided)
 * `fan_control` *bool*: Show the fan control dropdown (Default: false)
-* `min_slider` *integer*: Sets the minimum for the temperature slider(Default: If present, the number provided by the 'min_temp' attribute of the thermostat. Otherwise, this is 0*F)
-* `max_slider` *integer*: Sets the maximum for the temperature slider(Default: If present, the number provided by the 'max_temp' attribute of the thermostat. Otherwise, this is 100*F)
+* `min_slider` *integer*: Override the minimum value of the slider (Default: Uses the 'min_temp' attribute provided by the thermostat)
+* `max_slider` *integer*: Override the maximum value of the slider (Default: Uses the 'max_temp' attribute provided by the thermostat)
 
 ## Example usage:
 

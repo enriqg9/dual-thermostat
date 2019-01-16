@@ -85,8 +85,10 @@ class DualThermostatCard extends LitElement {
         ];
 
       this.name = this._config.name || this.stateObj.attributes.friendly_name;
+
       this.min_slider = this._config.min_slider || this.stateObj.attributes.min_temp;
       this.max_slider = this._config.max_slider || this.stateObj.attributes.max_temp;
+
       this.mode = modeIcons[this.stateObj.attributes.operation_mode || ""]
         ? this.stateObj.attributes.operation_mode
         : "unknown-mode";
@@ -161,8 +163,8 @@ class DualThermostatCard extends LitElement {
           label="Fan"
           @selected-item-changed="${this.handleFanMode}"
         >
-          <paper-listbox 
-            slot="dropdown-content" 
+          <paper-listbox
+            slot="dropdown-content"
             selected="${this.stateObj.attributes.fan_list.indexOf(this.stateObj.attributes.fan_mode)}"
           >
             ${(this.stateObj.attributes.fan_list || []).map((fanMode) => {
