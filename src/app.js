@@ -130,8 +130,8 @@ class DualThermostatCard extends LitElement {
             </div>
           </div>
         </div>
-        ${this.renderFanControl()}
         </div>
+        ${this.renderFanControl()}
       </ha-card>
     `;
   }
@@ -285,15 +285,6 @@ class DualThermostatCard extends LitElement {
     return html`
       <style>
         ${roundSliderCSS}
-        .rs-readonly {
-          top: auto;
-          z-index: auto;
-        }
-        .off .title,
-        .off .current-temperature,
-        .off .current-mode {
-          opacity: .35;
-        }
         :host {
           display: block;
         }
@@ -310,6 +301,11 @@ class DualThermostatCard extends LitElement {
           --dry-color: #efbd07;
           --idle-color: #8a8a8a;
           --unknown-color: #bac;
+        }
+        .not-found {
+          flex: 1;
+          background-color: yellow;
+          padding: 8px;
         }
         #root {
           position: relative;
@@ -346,39 +342,37 @@ class DualThermostatCard extends LitElement {
           --mode-color: var(--unknown-color);
         }
         .no-title {
-          --title-margin-top: 33% !important;
+          --title-position-top: 33% !important;
         }
         .large {
           --thermostat-padding-top: 25px;
           --thermostat-margin-bottom: 25px;
           --title-font-size: 28px;
-          --title-margin-top: 20%;
-          --climate-info-margin-top: 17%;
-          --modes-margin-top: 2%;
+          --title-position-top: 27%;
+          --climate-info-position-top: 81%;
           --set-temperature-font-size: 25px;
           --current-temperature-font-size: 71px;
-          --current-temperature-margin-top: 10%;
+          --current-temperature-position-top: 10%;
           --current-temperature-text-padding-left: 15px;
           --uom-font-size: 20px;
           --uom-margin-left: -18px;
           --current-mode-font-size: 18px;
-          --set-temperature-padding-bottom: 5px;
+          --set-temperature-margin-bottom: -5px;
         }
         .small {
           --thermostat-padding-top: 15px;
           --thermostat-margin-bottom: 15px;
           --title-font-size: 18px;
-          --title-margin-top: 20%;
-          --climate-info-margin-top: 7.5%;
-          --modes-margin-top: 1%;
+          --title-position-top: 28%;
+          --climate-info-position-top: 79%;
           --set-temperature-font-size: 16px;
           --current-temperature-font-size: 25px;
-          --current-temperature-margin-top: 5%;
+          --current-temperature-position-top: 5%;
           --current-temperature-text-padding-left: 7px;
           --uom-font-size: 12px;
           --uom-margin-left: -5px;
           --current-mode-font-size: 14px;
-          --set-temperature-padding-bottom: 0px;
+          --set-temperature-margin-bottom: 0px;
         }
         #thermostat {
           margin: 0 auto var(--thermostat-margin-bottom);
@@ -425,21 +419,28 @@ class DualThermostatCard extends LitElement {
         }
         #set-temperature {
           font-size: var(--set-temperature-font-size);
-          padding-bottom: var(--set-temperature-padding-bottom);
+          margin-bottom: var(--set-temperature-margin-bottom);
         }
         .title {
           font-size: var(--title-font-size);
-          margin-top: var(--title-margin-top);
+          position: absolute;
+          top: var(--title-position-top);
+          left: 50%;
+          transform: translate(-50%, -50%);
         }
         .climate-info {
-          margin-top: var(--climate-info-margin-top);
+          position: absolute;
+          top: var(--climate-info-position-top);
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 100%;
         }
         .current-mode {
           font-size: var(--current-mode-font-size);
           color: var(--secondary-text-color);
         }
         .modes {
-          margin-top: var(--modes-margin-top);
+          margin-top: 16px;
         }
         .modes ha-icon {
           color: var(--disabled-text-color);
@@ -451,7 +452,10 @@ class DualThermostatCard extends LitElement {
           color: var(--mode-color);
         }
         .current-temperature {
-          margin-top: var(--current-temperature-margin-top);
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
           font-size: var(--current-temperature-font-size);
         }
         .current-temperature-text {
@@ -463,12 +467,8 @@ class DualThermostatCard extends LitElement {
           margin-left: var(--uom-margin-left);
         }
         .fan-info {
-          display: flex;
-          justify-content: center;
-        }
-        .fan-mode {
-          margin-top: -30px;
-          z-index: 25;
+          text-align: center;
+          margin-top: -25px;
         }
       </style>
     `;
