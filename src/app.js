@@ -470,6 +470,10 @@ class DualThermostatCard extends LitElement {
           text-align: center;
           margin-top: -25px;
         }
+        .rs-readonly {
+          position: relative;
+          z-index: auto;
+        }
       </style>
     `;
   }
