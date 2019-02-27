@@ -92,6 +92,10 @@ class DualThermostatCard extends LitElement {
   }
 
   spreadEntities(entities) {
+    if (entities.length < 2) {
+      throw new Error("Specify cool and heat entities from within the climate domain.");
+    }
+
     let output = [];
 
     for (let entity of entities) {
