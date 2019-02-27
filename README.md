@@ -19,8 +19,12 @@ Heat and Cool entities are updated depending on the active thermostat mode. The 
 ## Available configuration options:
 
 * `entities` *array*
-	* `cool`: The thermostat cooling entity id **required**
-	* `heat`: The thermostat heating entity id **required**
+  * Using entity objects:
+	 * `entity` *string*: The thermostat entity id **required**
+    * `type` *string*: cool or heat **required**
+  * Using string notation (Cooling entity first):
+    * *string* `cool_entity_id` The thermostat cooling entity id **required**
+    * *string* `heat_entity_id` The thermostat heating entity id **required**
 * `name` *string*: Override the card name. (Default: Uses the friendly_name attribute of the first climate entity provided)
 * `fan_control` *bool*: Show the fan control dropdown (Default: false)
 * `min_slider` *integer*: Override the minimum value of the slider (Default: Uses the 'min_temp' attribute provided by the thermostat)
@@ -28,13 +32,31 @@ Heat and Cool entities are updated depending on the active thermostat mode. The 
 
 ## Example usage:
 
+#### Using entity objects
+
 ```yaml
 cards:
   - type: custom:dual-thermostat
     name: Downstairs
     entities:
-      cool: climate.downstairs_cool
-      heat: climate.downstairs_heat
+      - entity: climate.downstairs_cool
+        type: cool
+      - entity: climate.downstairs_heat
+        type: heat
+    fan_control: true
+    min_slider: 60
+    max_slider: 80
+```
+
+#### Using string (First provided entity will define to the cool entity)
+
+```yaml
+cards:
+  - type: custom:dual-thermostat
+    name: Downstairs
+    entities:
+      - climate.downstairs_cool
+      - climate.downstairs_heat
     fan_control: true
     min_slider: 60
     max_slider: 80

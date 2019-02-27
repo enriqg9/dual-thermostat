@@ -72,37 +72,62 @@ class DualThermostatCard extends LitElement {
     this._hass = hass;
 
     if (this._hass && this._config.entities) {
-      let {cool, heat} = this._config.entities;
+
+      let {cool, heat} = this.spreadEntities(this._config.entities)
 
       this.cool_entity = this.validateEntity(cool);
       this.heat_entity = this.validateEntity(heat);
 
-      // We use the first entity to determine the state of the thermostat
-      this.stateObj = this._hass.states[
-        this._config.entities[
-          Object.keys(this._config.entities)[0]
-          ]
-        ];
+      this.setStateObj(this._config.entities);
 
       this.name = this._config.name || this.stateObj.attributes.friendly_name;
 
       this.min_slider = this._config.min_slider || this.stateObj.attributes.min_temp;
       this.max_slider = this._config.max_slider || this.stateObj.attributes.max_temp;
 
-      this.mode = modeIcons[this.stateObj.attributes.operation_mode || ""]
-        ? this.stateObj.attributes.operation_mode
-        : "unknown-mode";
+      this.mode = modeIcons[this.stateObj.attributes.operation_mode || ""] ?
+        this.stateObj.attributes.operation_mode :
+        "unknown-mode";
     }
+  }
+
+  spreadEntities(entities) {
+    if (entities.length < 2) {
+      throw new Error("Specify cool and heat entities from within the climate domain.");
+    }
+
+    let output = [];
+
+    for (let entity of entities) {
+      if (typeof entity === "string" || !('type' in entity)) {
+        break;
+      }
+
+      output[entity.type] = entity.entity;
+    }
+
+    if (Object.keys(output).length == 0) {
+      output['cool'] = entities[0];
+      output['heat'] = entities[1];
+    }
+
+    return output;
+  }
+
+  setStateObj(entities) {
+    this.stateObj = (typeof entities[0] === "string" ?
+      this._hass.states[entities[0]] :
+      this._hass.states[entities[0].entity]);
   }
 
   render() {
     if (!this._hass || !this.stateObj) {
-      return html``;
+      return html ``;
     }
 
     let broadCard = this.clientWidth > 390;
 
-    return html`
+    return html `
       ${this.renderStyle()}
       <ha-card
         class="${this.mode} ${broadCard ? 'large' : "small"}">
@@ -138,10 +163,10 @@ class DualThermostatCard extends LitElement {
 
   renderIcon(mode) {
     if (!modeIcons[mode]) {
-      return html``;
+      return html ``;
     }
 
-    return html`
+    return html `
       <ha-icon
         class="${this.mode === mode ? 'selected-icon' : ''}"
         .mode="${mode}"
@@ -156,7 +181,7 @@ class DualThermostatCard extends LitElement {
       return '';
     }
 
-    return html`
+    return html `
       <div class="fan-info">
         <paper-dropdown-menu
           class="fan-mode"
@@ -185,7 +210,11 @@ class DualThermostatCard extends LitElement {
   }
 
   handleFanMode(e) {
-    let {detail: {value: node}} = e
+    let {
+      detail: {
+        value: node
+      }
+    } = e
     if (!node) return
     let value = node.getAttribute('mode')
 
@@ -282,7 +311,7 @@ class DualThermostatCard extends LitElement {
   }
 
   renderStyle() {
-    return html`
+    return html `
       <style>
         ${roundSliderCSS}
         :host {
@@ -479,9 +508,12 @@ class DualThermostatCard extends LitElement {
   }
 
   setConfig(config) {
-    if ((!config.entities.cool || config.entities.cool.split(".")[0] !== "climate")
-      || ((!config.entities.heat || config.entities.heat.split(".")[0] !== "climate"))) {
-      throw new Error("Specify cool and heat entities from within the climate domain.");
+    for (let entity of config.entities) {
+      if ((typeof entity === "string" && entity.split(".")[0] !== "climate") ||
+        (entity.type === "undefined") && entity.entity.split(".")[0] !== "climate"
+      ) {
+        throw new Error("Specify cool and heat entities from within the climate domain.");
+      }
     }
 
     this._config = config;
