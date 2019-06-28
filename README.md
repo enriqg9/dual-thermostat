@@ -8,7 +8,7 @@ Heat and Cool entities are updated depending on the active thermostat mode. The 
 
 ## Installation
 
-1. Download the repo as a zip or with git clone and copy the `/dual-thermostat` folder to the `/www` in your configuration folder.
+1. Download the repo as a zip or with git clone and copy contents of the `/dist` folder to the `/www/dual-thermostat` in your configuration folder.
 2. Configure Lovelace to load the card:
     ```
     resources:
