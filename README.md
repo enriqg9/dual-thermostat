@@ -18,17 +18,19 @@ Heat and Cool entities are updated depending on the active thermostat mode. The 
 
 ## Available configuration options:
 
-* `entities` *array*
+* `entities` *array* - If using separate heat and cool entities, specify the two entity's ids here (use either this or `entity` but not both)
   * Using entity objects:
 	 * `entity` *string*: The thermostat entity id **required**
     * `type` *string*: cool or heat **required**
   * Using string notation (Cooling entity first):
     * *string* `cool_entity_id` The thermostat cooling entity id **required**
     * *string* `heat_entity_id` The thermostat heating entity id **required**
+* `entity` *string*: If using one entity with low and high setpoints, specify the thermostat entity id here (use either this or `entities` but not both)
 * `name` *string*: Override the card name. (Default: Uses the friendly_name attribute of the first climate entity provided)
 * `fan_control` *bool*: Show the fan control dropdown (Default: false)
 * `min_slider` *integer*: Override the minimum value of the slider (Default: Uses the 'min_temp' attribute provided by the thermostat)
 * `max_slider` *integer*: Override the maximum value of the slider (Default: Uses the 'max_temp' attribute provided by the thermostat)
+* `always_use_range_slider` *bool*: Force both heat and cool slider options to show regardless of operating mode (Default: false)
 
 ## Example usage:
 

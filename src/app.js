@@ -43,6 +43,7 @@ class DualThermostatCard extends LitElement {
       _config: Object,
       cool_entity: Object,
       heat_entity: Object,
+      entity: Object,
       stateObj: {
         type: Object,
         notify: true
@@ -50,7 +51,8 @@ class DualThermostatCard extends LitElement {
       mode: String,
       name: String,
       min_slider: Number,
-      max_slider: Number
+      max_slider: Number,
+      always_use_range_slider: Boolean
     }
   }
 
@@ -61,32 +63,40 @@ class DualThermostatCard extends LitElement {
     this._config = null;
     this.cool_entity = null;
     this.heat_entity = null;
+    this.entity = null;
     this.stateObj = null;
     this.name = null;
     this.mode = null;
     this.min_slider = null;
-    this.max_slider = null
+    this.max_slider = null;
+    this.always_use_range_slider = null;
   }
 
   set hass(hass) {
     this._hass = hass;
 
-    if (this._hass && this._config.entities) {
+    if (this._hass && (this._config.entities || this._config.entity)) {
+      if (this._config.entities) {
+        let {cool, heat} = this.spreadEntities(this._config.entities);
 
-      let {cool, heat} = this.spreadEntities(this._config.entities)
+        this.cool_entity = this.validateEntity(cool);
+        this.heat_entity = this.validateEntity(heat);
+      }
+      else {
+        this.entity = this.validateEntity(this._config.entity);
+      }
 
-      this.cool_entity = this.validateEntity(cool);
-      this.heat_entity = this.validateEntity(heat);
-
-      this.setStateObj(this._config.entities);
+      this.setStateObj(this._config.entities, this._config.entity);
 
       this.name = this._config.name || this.stateObj.attributes.friendly_name;
 
       this.min_slider = this._config.min_slider || this.stateObj.attributes.min_temp;
       this.max_slider = this._config.max_slider || this.stateObj.attributes.max_temp;
 
-      this.mode = modeIcons[this.stateObj.attributes.operation_mode || ""] ?
-        this.stateObj.attributes.operation_mode :
+      this.always_use_range_slider = this._config.always_use_range_slider || false;
+
+      this.mode = modeIcons[this.stateObj.state || ""] ?
+        this.stateObj.state :
         "unknown-mode";
     }
   }
@@ -114,10 +124,14 @@ class DualThermostatCard extends LitElement {
     return output;
   }
 
-  setStateObj(entities) {
-    this.stateObj = (typeof entities[0] === "string" ?
-      this._hass.states[entities[0]] :
-      this._hass.states[entities[0].entity]);
+  setStateObj(entities, entity) {
+    if (entities) {
+      this.stateObj = (typeof entities[0] === "string" ?
+        this._hass.states[entities[0]] :
+        this._hass.states[entities[0].entity]);
+    } else {
+      this.stateObj = this._hass.states[entity];
+    }
   }
 
   render() {
@@ -139,7 +153,7 @@ class DualThermostatCard extends LitElement {
               <span class="current-temperature-text">
                 ${this.stateObj.attributes.current_temperature}
                 ${
-      this.stateObj.attributes.current_temperature
+      (this.stateObj.attributes.current_temperature || this.stateObj.attributes.temperature)
         ? html`<span class="uom">${this._hass.config.unit_system.temperature}</span>`
         : ""
       }
@@ -149,7 +163,7 @@ class DualThermostatCard extends LitElement {
             <div id="set-temperature"></div>
             <div class="current-mode">${this.localize(ucfirst(this.stateObj.state), 'state.climate.')}</div>
             <div class="modes">
-              ${(this.stateObj.attributes.operation_list || []).map((modeItem) =>
+              ${(this.stateObj.attributes.hvac_modes || []).map((modeItem) =>
       this.renderIcon(modeItem)
     )}
             </div>
@@ -190,9 +204,9 @@ class DualThermostatCard extends LitElement {
         >
           <paper-listbox
             slot="dropdown-content"
-            selected="${this.stateObj.attributes.fan_list.indexOf(this.stateObj.attributes.fan_mode)}"
+            selected="${this.stateObj.attributes.fan_modes.indexOf(this.stateObj.attributes.fan_mode)}"
           >
-            ${(this.stateObj.attributes.fan_list || []).map((fanMode) => {
+            ${(this.stateObj.attributes.fan_modes || []).map((fanMode) => {
         return html`<paper-item mode="${fanMode}">${fanMode}</paper-item>`;
       }
     )}
@@ -203,9 +217,9 @@ class DualThermostatCard extends LitElement {
   }
 
   handleModeClick(e) {
-    this._hass.callService("climate", "set_operation_mode", {
+    this._hass.callService("climate", "set_hvac_mode", {
       entity_id: this.stateObj.entity_id,
-      operation_mode: e.currentTarget.mode,
+      hvac_mode: e.currentTarget.mode,
     });
   }
 
@@ -236,7 +250,7 @@ class DualThermostatCard extends LitElement {
       radius: this.clientWidth / 3,
       min: this.min_slider,
       max: this.max_slider,
-      sliderType: this.mode === "auto" ? "range" : "min-range",
+      sliderType: (this.mode === "auto" || this.mode === "heat_cool" || this.always_use_range_slider) ? "range" : "min-range",
       change: (event) => this.setTemperature(event),
       drag: (event) => this.dragEvent(event),
     });
@@ -245,22 +259,39 @@ class DualThermostatCard extends LitElement {
   updated(changedProps) {
     let sliderValue;
     let uiValue;
+    if (this.heat_entity && this.cool_entity) {
+      if (this.mode === "auto" || this.mode === "heat_cool" || this.always_use_range_slider) {
+          sliderValue = `${this.heat_entity.attributes.temperature},${
+            this.cool_entity.attributes.temperature
+            }`;
 
-    if (this.mode === "auto") {
-      sliderValue = `${this.heat_entity.attributes.temperature},${
-        this.cool_entity.attributes.temperature
-        }`;
+          uiValue = formatTemp([
+            String(this.heat_entity.attributes.temperature),
+            String(this.cool_entity.attributes.temperature),
+          ]);
+      } else if (this.mode === "cool" || this.mode === "heat") {
+        sliderValue = uiValue = this[this.mode + '_entity'].attributes.temperature;
+      }
+    }
+    else {
+      if (this.mode === "auto" || this.mode === "heat_cool" || this.always_use_range_slider) {
+        sliderValue = `${this.entity.attributes.target_temp_low},${
+          this.entity.attributes.target_temp_high
+          }`;
 
-      uiValue = formatTemp([
-        String(this.heat_entity.attributes.temperature),
-        String(this.cool_entity.attributes.temperature),
-      ]);
-    } else if (this.mode === "cool" || this.mode === "heat") {
-      sliderValue = uiValue = this[this.mode + '_entity'].attributes.temperature;
+        uiValue = formatTemp([
+          String(this.entity.attributes.target_temp_low),
+          String(this.entity.attributes.target_temp_high),
+        ]);
+      } else if (this.mode === "cool") {
+        sliderValue = uiValue = this.entity.attributes.target_temp_high;
+      } else if (this.mode === "heat") {
+        sliderValue = uiValue = this.entity.attributes.target_temp_low;
+      }
     }
 
     jQuery("#thermostat", this.shadowRoot).roundSlider({
-      sliderType: this.mode === "auto" ? "range" : "min-range",
+      sliderType: (this.mode === "auto" || this.mode === "heat_cool" || this.always_use_range_slider) ? "range" : "min-range",
       value: uiValue ? sliderValue : "",
       disabled: !uiValue
     });
@@ -269,23 +300,49 @@ class DualThermostatCard extends LitElement {
   }
 
   setTemperature(e) {
-    if (this.mode === "auto") {
-      if (e.handle.index === 1) {
+    if (this.heat_entity && this.cool_entity) {
+      if (this.mode === "auto" || this.mode === "heat_cool" || this.always_use_range_slider) {
+        if (e.handle.index === 1) {
+          this._hass.callService("climate", "set_temperature", {
+            entity_id: this.heat_entity.entity_id,
+            temperature: e.handle.value
+          });
+        } else {
+          this._hass.callService("climate", "set_temperature", {
+            entity_id: this.cool_entity.entity_id,
+            temperature: e.handle.value
+          });
+        }
+      } else if (this.mode === "cool" || this.mode === "heat") {
         this._hass.callService("climate", "set_temperature", {
-          entity_id: this.heat_entity.entity_id,
-          temperature: e.handle.value
-        });
-      } else {
-        this._hass.callService("climate", "set_temperature", {
-          entity_id: this.cool_entity.entity_id,
-          temperature: e.handle.value
+          entity_id: this[this.mode + '_entity'].entity_id,
+          temperature: e.value,
         });
       }
-    } else if (this.mode === "cool" || this.mode === "heat") {
-      this._hass.callService("climate", "set_temperature", {
-        entity_id: this[this.mode + '_entity'].entity_id,
-        temperature: e.value,
-      });
+    } else {
+      if (this.mode === "auto" || this.mode === "heat_cool" || this.always_use_range_slider) {
+        if (e.handle.index === 1) {
+          this._hass.callService("climate", "set_temperature", {
+            entity_id: this.entity.entity_id,
+            target_temp_low: e.handle.value
+          });
+        } else {
+          this._hass.callService("climate", "set_temperature", {
+            entity_id: this.entity.entity_id,
+            target_temp_high: e.handle.value
+          });
+        }
+      } else if (this.mode === "cool") {
+        this._hass.callService("climate", "set_temperature", {
+          entity_id: this.entity.entity_id,
+          target_temp_high: e.value,
+        });
+      } else if (this.mode === "heat") {
+        this._hass.callService("climate", "set_temperature", {
+          entity_id: this.entity.entity_id,
+          target_temp_low: e.value,
+        });
+      }
     }
   }
 
@@ -508,12 +565,22 @@ class DualThermostatCard extends LitElement {
   }
 
   setConfig(config) {
-    for (let entity of config.entities) {
-      if ((typeof entity === "string" && entity.split(".")[0] !== "climate") ||
-        (entity.type === "undefined") && entity.entity.split(".")[0] !== "climate"
-      ) {
+    if (config.entities) {
+      for (let entity of config.entities) {
+        if ((typeof entity === "string" && entity.split(".")[0] !== "climate") ||
+          (entity.type === "undefined") && entity.entity.split(".")[0] !== "climate"
+        ) {
+          throw new Error("Specify cool and heat entities from within the climate domain.");
+        }
+      }
+    }
+    else if (config.entity) {
+      if (typeof config.entity === "string" && config.entity.split(".")[0] !== "climate") {
         throw new Error("Specify cool and heat entities from within the climate domain.");
       }
+    }
+    else {
+      throw new Error("Specify separate cool and heat entities or provide a single dual temperature entity.");
     }
 
     this._config = config;
