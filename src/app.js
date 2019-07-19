@@ -153,7 +153,7 @@ class DualThermostatCard extends LitElement {
               <span class="current-temperature-text">
                 ${this.stateObj.attributes.current_temperature}
                 ${
-      (this.stateObj.attributes.current_temperature || this.stateObj.attributes.temperature)
+      (this.stateObj.attributes.current_temperature)
         ? html`<span class="uom">${this._hass.config.unit_system.temperature}</span>`
         : ""
       }
@@ -283,10 +283,10 @@ class DualThermostatCard extends LitElement {
           String(this.entity.attributes.target_temp_low),
           String(this.entity.attributes.target_temp_high),
         ]);
-      } else if (this.mode === "cool") {
-        sliderValue = uiValue = this.entity.attributes.target_temp_high;
       } else if (this.mode === "heat") {
         sliderValue = uiValue = this.entity.attributes.target_temp_low;
+      } else if (this.mode === "cool") {
+        sliderValue = uiValue = this.entity.attributes.target_temp_high;
       }
     }
 
@@ -305,12 +305,12 @@ class DualThermostatCard extends LitElement {
         if (e.handle.index === 1) {
           this._hass.callService("climate", "set_temperature", {
             entity_id: this.heat_entity.entity_id,
-            temperature: e.handle.value
+            temperature: e.handle.value,
           });
         } else {
           this._hass.callService("climate", "set_temperature", {
             entity_id: this.cool_entity.entity_id,
-            temperature: e.handle.value
+            temperature: e.handle.value,
           });
         }
       } else if (this.mode === "cool" || this.mode === "heat") {
@@ -324,23 +324,27 @@ class DualThermostatCard extends LitElement {
         if (e.handle.index === 1) {
           this._hass.callService("climate", "set_temperature", {
             entity_id: this.entity.entity_id,
-            target_temp_low: e.handle.value
+            target_temp_low: e.handle.value,
+            target_temp_high: this.entity.attributes.target_temp_high,
           });
         } else {
           this._hass.callService("climate", "set_temperature", {
             entity_id: this.entity.entity_id,
-            target_temp_high: e.handle.value
+            target_temp_low: this.entity.attributes.target_temp_low,
+            target_temp_high: e.handle.value,
           });
         }
-      } else if (this.mode === "cool") {
-        this._hass.callService("climate", "set_temperature", {
-          entity_id: this.entity.entity_id,
-          target_temp_high: e.value,
-        });
       } else if (this.mode === "heat") {
         this._hass.callService("climate", "set_temperature", {
           entity_id: this.entity.entity_id,
           target_temp_low: e.value,
+          target_temp_high: this.entity.attributes.target_temp_high,
+        });
+      } else if (this.mode === "cool") {
+        this._hass.callService("climate", "set_temperature", {
+          entity_id: this.entity.entity_id,
+          target_temp_low: this.entity.attributes.target_temp_low,
+          target_temp_high: e.value,
         });
       }
     }
