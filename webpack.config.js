@@ -6,7 +6,7 @@ module.exports = {
   entry: './src/app.js',
 
   output: {
-    path: path.resolve(__dirname, 'dual-thermostat'),
+    path: path.resolve(__dirname, 'dist'),
     filename: 'dual-thermostat.js',
     publicPath: '/'
   },
