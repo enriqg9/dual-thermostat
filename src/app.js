@@ -138,9 +138,7 @@ class DualThermostatCard extends LitElement {
             <div class="climate-info">
             <div id="set-temperature"></div>
             <div class="current-mode">${this.computeCurrentModeName()}</div>
-            <div class="modes">
-              ${(this.stateObj.attributes.hvac_modes || []).map((modeItem) => this.renderIcon(modeItem))}
-            </div>
+            ${this.renderHvacModes()}
           </div>
         </div>
         </div>
@@ -161,6 +159,18 @@ class DualThermostatCard extends LitElement {
         .icon="${modeIcons[mode]}"
         @click="${this.handleModeClick}"
       ></ha-icon>
+    `;
+  }
+
+  renderHvacModes() {
+    if (!this._config.hvac_control) {
+      return '';
+    }
+
+    return html`
+      <div class="modes">
+        ${(this.stateObj.attributes.hvac_modes || []).map((modeItem) => this.renderIcon(modeItem))}
+      </div>
     `;
   }
 
