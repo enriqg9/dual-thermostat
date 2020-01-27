@@ -1,3 +1,6 @@
+Starting with HA 0.103, HA now defines only one entity for the Z-Wave thermostats thus this card is no longer needed. Use the native card instead. Card will no longer be maintained.
+----
+
 # Lovelace Dual Thermostat Card
 
 A custom Lovelace card based on the native thermostat card that allows to control dual thermostats that create separate Heat and Cool entities.
